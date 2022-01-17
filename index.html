@@ -9,26 +9,39 @@
         box-sizing: border-box;
         height: 100vh;
         margin: 0;
-        padding: 1vmax;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
       }
 
       .shape {
-        border: .25vmax solid #000;
-        height: 100%;
+        --scale: 1;
+
+        width: var(--w);
+        height: var(--h);
+        border-radius: var(--border-radius);
+        filter: blur(var(--blur));
         background-image:
           radial-gradient(
-            circle at var(--gradient-x) var(--gradient-y),
-            var(--color-1) var(--color-position),
+            circle at var(--g-x) var(--g-y),
+            var(--color-1) var(--stop-pos),
             var(--color-2),
-            rgba(255, 255, 255, 0)
+            rgba(0, 0, 0, 0)
           );
+        transform:
+          scale(var(--scale))
+          skew(var(--skew-x), var(--skew-y))
+          rotate(var(--rotate));
+
         cursor: pointer;
         user-select: none;
-        transition: .1s ease-out;
+        transition: .3s ease-in-out, border 0s;
       }
 
       .shape:active {
-        transform: scale(.98);
+        --scale: .9;
       }
     </style>
 
@@ -37,6 +50,7 @@
 
       const getRandInt = (min, max) =>
         Math.floor(Math.random() * (max - min + 1)) + min
+
       function getRandColor() {
         const h = getRandInt(0, 360)
         const s = getRandInt(42, 98)
@@ -46,13 +60,29 @@
 
       createApp({
         colors: [],
-        colorPosition: 0,
-        gradientPositions: [],
+        stop: 0,
+        gradientPos: [],
+        borderRadius: "",
+        width: 0,
+        height: 0,
+        skew: [],
+        rotate: 0,
+        blur: 0,
 
         generate() {
           this.colors = [...Array(2)].map(getRandColor)
-          this.colorPosition = getRandInt(0, 50)
-          this.gradientPositions = [...Array(2)].map(() => getRandInt(0, 100))
+          this.stop = getRandInt(0, 50)
+          this.gradientPos = [...Array(2)].map(() => getRandInt(-100, 100))
+          this.borderRadius = [...Array(2)].map(() => [...Array(4)]
+            .map(() => `${getRandInt(20, 100)}%`).join(" ")).join(" / ")
+          this.width = getRandInt(20, 50)
+          this.height = getRandInt(20, 50)
+          this.skew = [...Array(2)].map(() => getRandInt(-15, 15))
+          this.rotate = getRandInt(-15, 15)
+          this.blur = getRandInt(2, 3)
+        },
+        start() {
+          setInterval(this.generate, 500)
         },
       }).mount()
     </script>
@@ -64,9 +94,16 @@
       :style="{
         '--color-1': colors[0],
         '--color-2': colors[1],
-        '--color-position': `${colorPosition}%`,
-        '--gradient-x': `${gradientPositions[0]}%`,
-        '--gradient-y': `${gradientPositions[1]}%`,
+        '--stop-pos': `${stop}%`,
+        '--g-x': `${gradientPos[0]}%`,
+        '--g-y': `${gradientPos[1]}%`,
+        '--border-radius': borderRadius,
+        '--w': `${width}%`,
+        '--h': `${height}%`,
+        '--skew-x': `${skew[0]}deg`,
+        '--skew-y': `${skew[1]}deg`,
+        '--rotate': `${rotate}deg`,
+        '--blur': `${blur}vmax`,
       }"
       @click="generate"
     />
