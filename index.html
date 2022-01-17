@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Shapes</title>
+
+    <style>
+      body {
+        box-sizing: border-box;
+        height: 100vh;
+        margin: 0;
+        padding: 1vmax;
+      }
+
+      .shape {
+        border: .25vmax solid #000;
+        height: 100%;
+        background-image:
+          radial-gradient(
+            circle at var(--gradient-x) var(--gradient-y),
+            var(--color-1) var(--color-position),
+            var(--color-2),
+            rgba(255, 255, 255, 0)
+          );
+        cursor: pointer;
+        user-select: none;
+        transition: .1s ease-out;
+      }
+
+      .shape:active {
+        transform: scale(.98);
+      }
+    </style>
+
+    <script type="module">
+      import { createApp } from "https://unpkg.com/petite-vue?module"
+
+      const getRandInt = (min, max) =>
+        Math.floor(Math.random() * (max - min + 1)) + min
+      function getRandColor() {
+        const h = getRandInt(0, 360)
+        const s = getRandInt(42, 98)
+        const l = getRandInt(40, 90)
+        return `hsl(${h}, ${s}%, ${l}%)`
+      }
+
+      createApp({
+        colors: [],
+        colorPosition: 0,
+        gradientPositions: [],
+
+        generate() {
+          this.colors = [...Array(2)].map(getRandColor)
+          this.colorPosition = getRandInt(0, 50)
+          this.gradientPositions = [...Array(2)].map(() => getRandInt(0, 100))
+        },
+      }).mount()
+    </script>
+  </head>
+
+  <body v-scope @vue:mounted="generate">
+    <div
+      class="shape"
+      :style="{
+        '--color-1': colors[0],
+        '--color-2': colors[1],
+        '--color-position': `${colorPosition}%`,
+        '--gradient-x': `${gradientPositions[0]}%`,
+        '--gradient-y': `${gradientPositions[1]}%`,
+      }"
+      @click="generate"
+    />
+  </body>
+</html>
